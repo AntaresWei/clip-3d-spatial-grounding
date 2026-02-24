@@ -1,0 +1,40 @@
+clip-3d-spatial-grounding/
+│
+├── README.md
+│
+├── requirements.txt
+│
+├── configs/
+│   └── default.yaml
+│
+├── data/
+│   └── scannet/
+│       ├── raw/              # 原始 ScanNet 数据
+│       ├── processed/        # 处理后的中间结果
+│       └── splits/           # 训练/验证/测试或scene列表
+│
+├── datasets/
+│   └── scannet_dataset.py    # ScanNet 数据读取与封装
+│
+├── models/
+│   ├── clip_model.py         # CLIP 封装（图像/文本编码）
+│   └── spatial_grounder.py   # 2D→3D 语义投影与融合逻辑
+│
+├── geometry/
+│   ├── camera.py             # 相机模型、内外参
+│   └── projection.py         # 2D ↔ 3D 投影函数
+│
+├── pipelines/
+│   └── run_grounding.py      # 端到端流程入口
+│
+├── visualization/
+│   └── visualize_open3d.py   # Open3D 可视化
+│
+├── utils/
+│   ├── io.py
+│   ├── logger.py
+│   └── metrics.py
+│
+└── scripts/
+    ├── preprocess_scannet.py
+    └── demo_single_scene.py

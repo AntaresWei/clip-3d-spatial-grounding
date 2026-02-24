@@ -1,0 +1,16 @@
+# pip install torch==2.9.1 torchvision==0.24.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu130
+torch==2.2.2
+torchvision==0.17.2
+
+open3d==0.18.0
+
+numpy>=1.24,<2.0
+opencv-python>=4.8
+pyyaml>=6.0
+tqdm>=4.65
+
+ftfy
+regex
+
+# 安装 CLIP 模型
+# pip install git+https://github.com/openai/CLIP.git
