@@ -30,12 +30,42 @@ def camera_to_world(point_camera, pose):
 def depth_to_world_points(depth, intrinsic, pose):
     """
     depth: HxW depth map in meters
+    intrinsic: 4x4 or 3x3 intrinsic matrix
+    pose: 4x4 camera-to-world matrix
     """
     H, W = depth.shape
     points_world = []
 
     for v in range(0, H, 4):      # 下采样加速
         for u in range(0, W, 4):
+
+            z = depth[v, u]
+            if z == 0:
+                continue
+
+            point_cam = backproject_pixel_to_camera(u, v, z, intrinsic)
+            point_world = camera_to_world(point_cam, pose)
+
+            points_world.append(point_world[:3])
+
+    return np.array(points_world)
+
+
+def mask_to_world_points(mask, depth, intrinsic, pose):
+    """
+    mask: HxW binary mask
+    depth: HxW depth map in meters
+    intrinsic: 4x4 or 3x3 intrinsic matrix
+    pose: 4x4 camera-to-world matrix
+    """
+    H, W = depth.shape
+    points_world = []
+
+    for v in range(H):
+        for u in range(W):
+
+            if not mask[v, u]:
+                continue
 
             z = depth[v, u]
             if z == 0:

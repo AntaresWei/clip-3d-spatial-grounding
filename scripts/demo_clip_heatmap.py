@@ -10,10 +10,11 @@ from PIL import Image
 
 image = Image.open(r".\data\scannet\scene0000_00\color\000200.jpg")
 text = "a black chair"
+text_feat = clip_model.encode_text(text)
 
 clip_model = CLIPModel()
 
-heatmap = sliding_window_similarity(image, clip_model,text)
+heatmap = sliding_window_similarity(image, clip_model,text_feat)
 
 # heatmap = grounder.compute_heatmap(heatmap)
 

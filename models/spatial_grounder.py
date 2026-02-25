@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 
-def sliding_window_similarity(image, clip_model, text, window_size=224, stride=112):
+def sliding_window_similarity(image, clip_model, text_feat, window_size=224, stride=112):
     '''
     返回相似度热力图
     '''
@@ -11,7 +11,7 @@ def sliding_window_similarity(image, clip_model, text, window_size=224, stride=1
 
     heatmap = np.zeros((H, W))
     
-    text_feat = clip_model.encode_text(text)
+    # text_feat = clip_model.encode_text(text)
 
     for y in range(0, H - window_size, stride):
         for x in range(0, W - window_size, stride):
@@ -27,7 +27,7 @@ def sliding_window_similarity(image, clip_model, text, window_size=224, stride=1
 
     return heatmap
 
-def generate_mask(heatmap, percentile=90):
+def heatmap_to_mask(heatmap, percentile=90):
     '''
     返回热力图的二值掩码
     '''
