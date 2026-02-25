@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 
+# 最小数据读取器
 
 class ScanNetScene:
 

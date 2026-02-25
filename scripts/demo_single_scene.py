@@ -4,6 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datasets.scannet_dataset import ScanNetScene
 import matplotlib.pyplot as plt
 
+# 测试数据读取
+
 scene = ScanNetScene(r".\data\scannet\scene0000_00")
 
 print("Total frames:", len(scene.frame_ids))

@@ -6,6 +6,8 @@ import open3d as o3d
 from datasets.scannet_dataset import ScanNetScene
 from geometry.projection import depth_to_world_points
 
+# 测试投影是否正确
+
 scene = ScanNetScene(r".\data\scannet\scene0000_00")
 
 frame_id = scene.frame_ids[0]
