@@ -1,152 +1,149 @@
-Open-Vocabulary 3D Semantic Grounding (CLIP + ScanNet)
+# Open-Vocabulary 3D Semantic Grounding (CLIP + ScanNet)
 
-A multi-view 3D semantic grounding system that aligns natural language queries with RGB-D indoor scenes.
-The project bridges Vision-Language models and 3D geometry by projecting 2D semantic responses into 3D space and performing multi-view fusion.
+A multi-view 3D semantic grounding system that aligns natural language queries with indoor RGB-D scenes and localizes target objects in 3D point clouds.
 
-🚀 Overview
+This project integrates vision-language models with geometric projection and multi-view statistical fusion to enable text-driven 3D object localization.
 
-Given a natural language query (e.g., "a guitar"), the system:
+---
 
-Computes 2D semantic heatmaps using CLIP.
+## 🚀 Overview
 
-Projects semantic responses into 3D point cloud space via RGB-D geometry.
+Given a natural language query (e.g., *"a guitar"*, *"a white toilet in the bathroom"*),  
+the system:
 
-Aggregates multi-view confidence scores across frames.
+1. Computes semantic similarity using CLIP
+2. Generates 2D semantic heatmaps via sliding-window matching
+3. Projects 2D semantic responses into 3D space using RGB-D geometry
+4. Aggregates multi-view semantic scores across frames
+5. Applies statistical filtering (percentile-based thresholding)
+6. Outputs a highlighted 3D semantic point cloud
 
-Applies statistical filtering (percentile-based thresholding).
+---
 
-Outputs semantically grounded 3D point clouds.
+## 🧠 Key Features
 
-This enables open-vocabulary object localization in 3D scenes without task-specific training.
+- **Open-vocabulary 3D localization** via CLIP
+- **Multi-view semantic fusion** to improve robustness
+- **Adaptive percentile thresholding (p98 / p99)** for noise suppression
+- **Frame gating mechanism** to prevent semantic dilution
+- **Efficient KD-Tree nearest-neighbor fusion**
+- Compatible with ScanNet RGB-D scenes
 
-🧠 Key Contributions
+---
 
-Open-vocabulary 3D grounding using CLIP embeddings
+## 🏗 System Pipeline
 
-RGB-D pixel-level back-projection using camera intrinsics & extrinsics
+``` TypeScript
+Text Query
+↓
+CLIP Text Encoder
+↓
+Sliding Window Image-Text Similarity
+↓
+2D Semantic Heatmap
+↓
+RGB-D Backprojection (Camera Intrinsics + Pose)
+↓
+Multi-view Score Aggregation
+↓
+Percentile-based Filtering
+↓
+3D Semantic Point Cloud
+```
 
-Multi-view semantic score aggregation
 
-Frame gating mechanism to suppress noise propagation
+---
 
-Percentile-based adaptive thresholding (p98 / p99)
+## 🔍 Technical Challenges & Solutions
 
-KD-Tree based 2D–3D nearest-neighbor semantic fusion
+### 1. CLIP is image-level, not pixel-level
 
-Statistical analysis of semantic score distributions
+- Implemented sliding-window semantic matching
+- Generated dense heatmaps from patch-level responses
 
-🏗️ System Pipeline
+### 2. Multi-view semantic dilution
 
-Text → CLIP → 2D Heatmap → Depth Back-Projection →
-3D World Coordinates → Multi-View Score Fusion →
-Percentile Filtering → 3D Semantic Visualization
+Simple averaging across frames suppresses true signals.
 
-🔍 Core Challenges
-1. CLIP is image-level, not pixel-level
+**Solution:**
+- Frame-level gating
+- Observation-count constraint
+- Percentile-based adaptive thresholding
 
-Sliding-window inference is used to approximate spatial semantic localization.
+### 3. Noise propagation across frames
 
-2. Multi-view score dilution
+**Solution:**
+- Valid observation filtering (`score_count >= k`)
+- High-percentile selection (p98 / p99)
+- Optional top-K fallback
 
-Naïve averaging causes semantic signal suppression due to non-visible frames.
+---
 
-3. Threshold instability
+## 📊 Statistical Modeling Strategy
 
-Absolute thresholds are unreliable across scenes.
-Percentile-based filtering stabilizes right-tail semantic selection.
+Instead of fixed absolute thresholds, this project uses:
 
-📊 Multi-View Fusion Strategy
+```python
+p99 = np.percentile(final_score[valid], 99)
+semantic_mask = final_score > p99
+```
 
-For each 3D point:
+This approach:
 
-final_score = score_sum / score_count
+Adapts to scene-dependent score distributions
 
-Enhancements include:
+Preserves right-tail semantic signals
 
-Frame-level gating (skip low-response frames)
+Reduces manual tuning
 
-Minimum observation constraint (score_count ≥ 2)
+## 🧪 Example Results
 
-Percentile-based filtering (p98 / p99)
+Strong localization for distinctive objects (e.g., guitar)
 
-Optional top-k fallback selection
+Stable right-tail score distribution across views
 
-This reduces noise amplification and improves semantic stability.
+Robust suppression of background noise
 
-📦 Project Structure
-.
-├── scripts/
-│   ├── demo_grounding.py
-│   ├── spatial_grounder.py
-│   ├── scannet_dataset.py
-├── third_party/
-│   └── CLIP/
-├── outputs/
-└── README.md
-🛠️ Installation
-Requirements
+## 📂 Dataset
 
+ScanNet RGB-D dataset
+
+Uses intrinsic/extrinsic camera parameters
+
+Supports multi-frame scene processing
+
+## 🛠 Dependencies
+
+``` TypeScript
 Python 3.10
 
-PyTorch (CUDA 12.1 recommended)
+PyTorch
 
 Open3D
 
 NumPy
 
-Scikit-learn
+CLIP (OpenAI)
+```
 
-Setup
-conda create -n clip3d python=3.10
-conda activate clip3d
+## 📈 Future Improvements
 
-pip install torch torchvision
-pip install open3d numpy scikit-learn
+Attention-based patch extraction (ViT attention maps)
 
-Download ScanNet dataset and configure path in scannet_dataset.py.
+Positive-negative contrastive scoring
 
-▶️ Usage
-python scripts/demo_grounding.py
+SAM-based region refinement
 
-Modify the text query inside:
+3D bounding box extraction via clustering
 
-text = "a guitar"
-📈 Example Results
+Occlusion-aware visibility modeling
 
-The system successfully localizes:
+## 🎯 Applications
 
-Guitar (high separability class)
+Open-vocabulary 3D scene understanding
 
-Toilet (higher semantic confusion with sink/bathtub)
+Vision-language robotics
 
-Observations:
+Text-driven 3D search
 
-Object categories with strong visual distinctiveness produce clearer right-tail score distributions.
-
-White indoor objects exhibit embedding overlap in CLIP space.
-
-🧪 Experimental Notes
-
-Score distribution example:
-
-p90  ≈ 0.24
-p95  ≈ 0.25
-p97  ≈ 0.26
-p99  ≈ 0.27
-max  ≈ 0.29
-
-Right-tail separation determines localization stability.
-
-🔬 Future Improvements
-
-Positive-negative contrast scoring
-
-Visibility-aware updates
-
-SAM-assisted region masking
-
-DINOv2 backbone replacement
-
-3D clustering for bounding box generation
-
-Quantitative IoU evaluation
+Multi-modal spatial grounding research
